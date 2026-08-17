@@ -1,0 +1,16 @@
+.venv
+.env
+__pycache__
+node_modules
+.next
+
+private_key.json
+
+*.shp*
+*.shx*
+*.dbf*
+*.prj*
+*.cpg*
+*.fix*
+
+*.tif*
