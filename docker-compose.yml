@@ -2,7 +2,7 @@ services:
   base:
     build:
       context: .
-      dockerfile: Dockerfile.job
+      dockerfile: Dockerfile.base
     volumes:
       - ./data:/usr/src/app/data
       - ./notebook:/usr/src/app/notebook
