@@ -14,3 +14,9 @@ private_key.json
 *.fix*
 
 *.tif*
+
+*.zarr*
+*.csv*
+*.geojson*
+*.parquet*
+*.csv*
