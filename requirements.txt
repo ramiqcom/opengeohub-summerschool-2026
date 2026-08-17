@@ -1,0 +1,9 @@
+jupyterlab
+geopandas
+rasterio
+scikit-learn
+pystac-client
+scikit-image
+matplotlib
+tensorflow
+keras

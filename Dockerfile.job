@@ -6,7 +6,7 @@ COPY private_key.json .
 
 RUN gcloud auth activate-service-account --key-file private_key.json
 
-COPY job/requirements.txt .
+COPY requirements.txt .
 
 RUN python3 -m venv .venv && \
   .venv/bin/pip install -r requirements.txt

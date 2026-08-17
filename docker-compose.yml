@@ -1,0 +1,18 @@
+services:
+  base:
+    build:
+      context: .
+      dockerfile: Dockerfile.job
+    volumes:
+      - ./data:/usr/src/app/data
+      - ./notebook:/usr/src/app/notebook
+      - ./job:/usr/src/app/job
+  code:
+    build:
+      dockerfile: ./Dockerfile.notebook
+      context: .
+    volumes_from:
+      - base
+    command: [ "code-server", "--auth", "none", "--host", "0.0.0.0", --port, "8080", "/usr/src/app", "--cert-key", "0.0.0.0.pem" ]
+    ports:
+      - 8080:8080
