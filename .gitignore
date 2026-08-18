@@ -21,3 +21,4 @@ private_key.json
 *.parquet*
 *.csv*
 *.zip*
+*.qmd*
