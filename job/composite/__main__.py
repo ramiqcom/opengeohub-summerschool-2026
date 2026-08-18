@@ -15,8 +15,7 @@ RESOLUTION = 10
 
 TRAIN_PARQUET = f"{OUTPUT_LOCAL}/train_only_biomass.parquet"
 TEST_PARQUET = f"{OUTPUT_LOCAL}/test_only_biomass.parquet"
-GRIDS = f"{OUTPUT_LOCAL}/tiles.geojson"
-GRIDS_VOL = f"{OUTPUT_VOLUME}/tiles.geojson"
+GRIDS = "https://storage.googleapis.com/gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/roi/tiles.geojson"
 
 logger.info("Load grids")
 grids_df = gpd.read_file(GRIDS)
@@ -115,7 +114,7 @@ with ThreadPoolExecutor(2) as executor:
                 executor.submit(
                     run_s2,
                     name,
-                    GRIDS_VOL,
+                    GRIDS,
                     tile_filter,
                     date_range,
                 )
@@ -125,7 +124,7 @@ with ThreadPoolExecutor(2) as executor:
                 executor.submit(
                     run_s1,
                     name,
-                    GRIDS_VOL,
+                    GRIDS,
                     tile_filter,
                     date_range,
                 )
