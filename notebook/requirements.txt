@@ -13,3 +13,4 @@ xarray
 pyarrow
 fastparquet
 xgboost
+kaggle
