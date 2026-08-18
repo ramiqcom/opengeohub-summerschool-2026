@@ -30,7 +30,7 @@ test_df = gpd.read_parquet(TEST_PARQUET)
 def run_s2(name: str, roi, sql_where: str = "", dates: tuple[str, str] | None = None):
     start_date, end_date = dates
 
-    logger(f"Run S2 {name}")
+    logger.info(f"Run S2 {name}")
 
     cmd = f"""docker container run \
                 --name s2_{name} \
@@ -120,15 +120,15 @@ with ThreadPoolExecutor(2) as executor:
                 )
             )
 
-            jobs.append(
-                executor.submit(
-                    run_s1,
-                    name,
-                    GRIDS,
-                    tile_filter,
-                    date_range,
-                )
-            )
+            # jobs.append(
+            #     executor.submit(
+            #         run_s1,
+            #         name,
+            #         GRIDS,
+            #         tile_filter,
+            #         date_range,
+            #     )
+            # )
 
     for job in jobs:
         try:
