@@ -7,3 +7,4 @@ pyarrow
 xarray
 zarr
 arraylake
+dotenv

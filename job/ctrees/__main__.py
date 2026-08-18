@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 import geopandas as gpd
 import xarray as xr
 from arraylake import Client
-from dotenv import load_dotenv
+from dotenv import  
 
 from ..utils import MAX_WORKERS, logger
 
