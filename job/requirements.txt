@@ -1,15 +1,11 @@
-jupyterlab
 geopandas
 rasterio
 scikit-learn
 pystac-client
 scikit-image
-matplotlib
 tensorflow
 keras
-contextily
-zarr
-xarray
+fastparquet
 pyarrow
 fastparquet
 xgboost
