@@ -13,11 +13,15 @@ const roi =
 
 console.log("Loading ROI");
 
-const mosaixRoiJson = await (await fetch(roi)).json();
+const roiJson = await (await fetch(roi)).json();
+
+const tiles = roiJson["features"].map((feat) => feat["properties"]["tile_id"]);
 
 console.log("Running GEDI task");
-
-await gediTask();
+tiles.map(async (tile_id: string) => {
+  console.log(`Run ${tile_id}`);
+  await gediTask(tile_id);
+});
 
 async function authenticateViaPrivateKey(
   key: Record<string, any>,
@@ -58,7 +62,7 @@ async function exportTask(task: ee.batch.Export<any>) {
   });
 }
 
-async function gediTask() {
+async function gediTask(tile_id: string) {
   const l2a: ee.ImageCollection = ee.ImageCollection(
     "LARSE/GEDI/GEDI02_A_002_MONTHLY",
   );
@@ -68,7 +72,9 @@ async function gediTask() {
   const l2b: ee.ImageCollection = ee.ImageCollection(
     "LARSE/GEDI/GEDI02_B_002_MONTHLY",
   );
-  const roi: ee.FeatureCollection = ee.FeatureCollection(mosaixRoiJson);
+  const roi: ee.FeatureCollection = ee
+    .FeatureCollection(roiJson)
+    .filter(ee.Filter.eq("tile_id", tile_id));
   const bounds: ee.Geometry = roi.bounds();
 
   const gediList = [
@@ -107,9 +113,9 @@ async function gediTask() {
 
   const task = ee.batch.Export.table.toCloudStorage({
     collection: table,
-    description: "GEDI_summerschool",
+    description: `GEDI_summerschool_tile_${tile_id}`,
     bucket: "gee-ramiqcom-s4g-bucket",
-    fileNamePrefix: "opengeohub_summerschool_2026/gedi_gee/GEDI",
+    fileNamePrefix: `opengeohub_summerschool_2026/gedi_gee/GEDI_${tile_id}`,
     fileFormat: "geojson",
   });
 
