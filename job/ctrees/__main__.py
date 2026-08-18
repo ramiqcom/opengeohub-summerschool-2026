@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 import geopandas as gpd
 import xarray as xr
 from arraylake import Client
-from dotenv import  
+from dotenv import load_dotenv
 
 from ..utils import MAX_WORKERS, logger
 
@@ -20,7 +20,7 @@ RESOLUTION = 10
 
 TRAIN_PARQUET = f"{OUTPUT_VOLUME}/train_only_biomass.parquet"
 TEST_PARQUET = f"{OUTPUT_VOLUME}/test_only_biomass.parquet"
-GRIDS = f"{OUTPUT_VOLUME}/tiles.geojson"
+GRIDS = "https://storage.googleapis.com/gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/roi/tiles.geojson"
 
 logger.info("Load grids")
 grids_df = gpd.read_file(GRIDS)
