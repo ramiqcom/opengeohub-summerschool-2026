@@ -3,6 +3,7 @@ from subprocess import check_call
 from tempfile import TemporaryDirectory
 
 import geopandas as gpd
+import rioxarray  # noqa: F401
 import xarray as xr
 from arraylake import Client
 from dotenv import load_dotenv
