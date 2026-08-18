@@ -16,3 +16,10 @@ services:
     command: [ "code-server", "--auth", "none", "--host", "0.0.0.0", --port, "8080", "/usr/src/app", "--cert-key", "0.0.0.0.pem" ]
     ports:
       - 8080:8080
+  ctrees:
+    build:
+      dockerfile: ./Dockerfile.job
+      context: .
+    volumes_from:
+      - base
+    command: [".venv/bin/python", "-m", "job.ctrees"]

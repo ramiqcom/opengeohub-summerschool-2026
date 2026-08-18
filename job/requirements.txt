@@ -2,10 +2,8 @@ geopandas
 rasterio
 scikit-learn
 pystac-client
-scikit-image
-tensorflow
-keras
 fastparquet
 pyarrow
-fastparquet
-xgboost
+xarray
+zarr
+arraylake
