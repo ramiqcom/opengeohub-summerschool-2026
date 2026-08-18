@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@google/earthengine": "npm:@google/earthengine@^1.7.17",
+    "@std/assert": "jsr:@std/assert@1"
+  }
+}
