@@ -25,6 +25,13 @@ services:
     volumes_from:
       - base
     command: [".venv/bin/python", "-m", "job.ctrees"]
+  neighbours:
+    build:
+      dockerfile: ./Dockerfile.job
+      context: .
+    volumes_from:
+      - base
+    command: [".venv/bin/python", "-m", "job.neighbours"]
   gedi_gee:
       build:
         dockerfile: ./Dockerfile.job
