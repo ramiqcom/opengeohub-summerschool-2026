@@ -47,3 +47,11 @@ services:
       volumes_from:
         - base
       command: ["deno",  "run", "-A", "job/gedi_gee/main.ts"]
+  extract:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.extract"]
