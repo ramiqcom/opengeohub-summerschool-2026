@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from subprocess import check_call
+from subprocess import check_call, check_output
 
 import geopandas as gpd
 
@@ -15,7 +15,7 @@ RESOLUTION = 10
 
 TRAIN_PARQUET = f"{OUTPUT_LOCAL}/train_only_biomass.parquet"
 TEST_PARQUET = f"{OUTPUT_LOCAL}/test_only_biomass.parquet"
-GRIDS = "https://storage.googleapis.com/gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/roi/tiles.geojson"
+GRIDS = "https://storage.googleapis.com/gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/roi/tiles_v2.geojson"
 
 logger.info("Load grids")
 grids_df = gpd.read_file(GRIDS)
@@ -90,12 +90,24 @@ def run_s1(name: str, roi, sql_where: str = "", dates: tuple[str, str] | None = 
     check_call(f"rm {OUTPUT_LOCAL}/{name}*S1*.tif", shell=True)
 
 
+done_s2 = check_output(
+    f"gcloud storage ls {S2_CLOUD_PREFIX}", shell=True, text=True
+).split("\n")[:-1]
+done_s2 = ["_".join(path.split("/")[-1].split("_")[:3]) for path in done_s2]
+
+done_s1 = check_output(
+    f"gcloud storage ls {S1_CLOUD_PREFIX}", shell=True, text=True
+).split("\n")[:-1]
+done_s1 = ["_".join(path.split("/")[-1].split("_")[:3]) for path in done_s1]
+
 with ThreadPoolExecutor(2) as executor:
     jobs = []
     for index in range(len(grids_df)):
         grid = grids_df[index : index + 1]
-        xmin, ymin, xmax, ymax = tuple(grid.total_bounds)
         tile_id = grid.iloc[0]["tile_id"]
+
+        xmin, ymin, xmax, ymax = tuple(grid.total_bounds)
+
         tile_filter = f"tile_id = '{tile_id}'"
 
         train_bbox = train_df.cx[xmin:xmax, ymin:ymax]
@@ -110,25 +122,27 @@ with ThreadPoolExecutor(2) as executor:
             date_end = f"{year}-07-31"
             date_range = (date_start, date_end)
 
-            jobs.append(
-                executor.submit(
-                    run_s2,
-                    name,
-                    GRIDS,
-                    tile_filter,
-                    date_range,
+            if name not in done_s2:
+                jobs.append(
+                    executor.submit(
+                        run_s2,
+                        name,
+                        GRIDS,
+                        tile_filter,
+                        date_range,
+                    )
                 )
-            )
 
-            # jobs.append(
-            #     executor.submit(
-            #         run_s1,
-            #         name,
-            #         GRIDS,
-            #         tile_filter,
-            #         date_range,
-            #     )
-            # )
+            if name not in done_s1:
+                jobs.append(
+                    executor.submit(
+                        run_s1,
+                        name,
+                        GRIDS,
+                        tile_filter,
+                        date_range,
+                    )
+                )
 
     for job in jobs:
         try:
