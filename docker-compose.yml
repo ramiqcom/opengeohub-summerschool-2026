@@ -95,3 +95,11 @@ services:
       volumes_from:
         - base
       command: [".venv/bin/python", "-m", "job.canopy_density"]
+  als_canopy_height:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.als_canopy_height"]
