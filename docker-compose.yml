@@ -87,3 +87,11 @@ services:
       volumes_from:
         - base
       command: [".venv/bin/python", "-m", "job.terrain"]
+  canopy_density:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.canopy_density"]
