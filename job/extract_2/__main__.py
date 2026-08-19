@@ -1,5 +1,4 @@
 from concurrent.futures import ThreadPoolExecutor
-from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
 
 import geopandas as gpd
@@ -22,43 +21,14 @@ BANDS_TERRAIN = ["slope", "aspect", "tri", "tpi", "hillshade"]
 
 folder = TemporaryDirectory(delete=False)
 
-
-# data list
-logger.info("Create ETH VRT")
-eth_list = check_output(
-    "gcloud storage ls gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/eth_chm/",
-    shell=True,
-    text=True,
-).split("\n")[:-1]
-eth_list = [path.replace("gs://", "/vsigs/") for path in eth_list]
-
-vrt_eth = f"{folder.name}/eth.vrt"
-check_call(
-    f"""gdal raster mosaic -f VRT --resolution=average {" ".join(eth_list)} {vrt_eth}""",
-    shell=True,
-)
-
-logger.info("Create META VRT")
-meta_list = check_output(
-    "gcloud storage ls gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm/",
-    shell=True,
-    text=True,
-).split("\n")[:-1]
-meta_list = [path.replace("gs://", "/vsigs/") for path in meta_list]
-vrt_meta = f"{folder.name}/meta.vrt"
-check_call(
-    f"""gdal raster mosaic -f VRT --resolution=average {" ".join(meta_list)} {vrt_meta}""",
-    shell=True,
-)
-
 data_sources = [
     dict(
         bands=BANDS_CHM_ETH,
-        source=vrt_eth,
+        source="https://storage.googleapis.com/gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/eth_chm/ETH_CHM.tif",
     ),
     dict(
         bands=BANDS_CHM_META,
-        source=vrt_meta,
+        source="https://storage.googleapis.com/gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm/META_CHM.tif",
     ),
     dict(
         bands=BANDS_DEM,
