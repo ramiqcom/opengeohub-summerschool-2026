@@ -47,6 +47,14 @@ services:
       volumes_from:
         - base
       command: ["deno",  "run", "-A", "job/gedi_gee/main.ts"]
+  eth_chm:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: ["deno",  "run", "-A", "job/eth_chm/main.ts"]
   extract:
       build:
         dockerfile: ./Dockerfile.job
