@@ -17,7 +17,6 @@ SUBMISSION_CSV = f"{DATA_PREFIX}/sample_submission.csv"
 BANDS_S2 = ["BLUE", "GREEN", "RED", "NIR", "SWIR1", "SWIR2"]
 # BANDS_S2_DIST = [f"{b}_DIST" for b in BANDS_S2]
 BANDS_S1 = ["VV", "VH"]
-BANDS_CHM = ["CHM"]
 # BANDS_S1_DIST = [f"{b}_DIST" for b in BANDS_S1]
 
 logger.info("Load train")
@@ -60,11 +59,6 @@ def run_per_tile(index, df, tile_ids):
         #         df_mask,
         #         BANDS_S1_DIST,
         #     ] = [data for data in src.sample(coords)]
-
-        with rio.open(
-            f"gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm/{tile_id}.tif"
-        ) as src:
-            df.loc[df_mask, BANDS_CHM] = [data for data in src.sample(coords)]
 
 
 tile_ids = train_df["tile_id"].unique()

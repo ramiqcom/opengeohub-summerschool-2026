@@ -55,6 +55,14 @@ services:
       volumes_from:
         - base
       command: ["deno",  "run", "-A", "job/eth_chm/main.ts"]
+  embedding:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: ["deno",  "run", "-A", "job/embedding/main.ts"]
   extract:
       build:
         dockerfile: ./Dockerfile.job
@@ -63,3 +71,19 @@ services:
       volumes_from:
         - base
       command: [".venv/bin/python", "-m", "job.extract"]
+  extract_2:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.extract_2"]
+  terrain:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.terrain"]
