@@ -18,7 +18,7 @@ const roiJson = await (await fetch(roi)).json();
 const tiles = roiJson['features'].map((feat) => feat['properties']['tile_id']);
 
 console.log('Running Embedding task');
-tiles.map(async (tile_id: string) => {
+tiles.slice(0, 1).map(async (tile_id: string) => {
   console.log(`Run ${tile_id}`);
   await embeddingTask(tile_id);
 });
@@ -77,10 +77,11 @@ async function embeddingTask(tile_id: string) {
     ee.Filter.date('2020-01-01', '2020-12-31')
   );
 
-  const image = col.filter(filter).mosaic();
+  let image = col.filter(filter);
+  image = image.mosaic().clip(bounds);
 
   const task = ee.batch.Export.image.toCloudStorage({
-    image: image.unmask(-9999),
+    image: image,
     crs: 'EPSG:4326',
     region: await evaluateGee(bounds),
     maxPixels: 1e13,
@@ -96,26 +97,4 @@ async function embeddingTask(tile_id: string) {
   });
 
   await exportTask(task);
-}
-
-function chmPreprocess(image: ee.Image) {
-  const mask = image
-    .select('quality_flag')
-    .and(image.select('degrade_flag').eq(0));
-  return image.select('rh98').updateMask(mask);
-}
-
-function treecoverPreprocess(image: ee.Image) {
-  const mask = image
-    .select('l2b_quality_flag')
-    .and(image.select('degrade_flag').eq(0));
-  return image.select('cover').updateMask(mask);
-}
-
-function agbPreprocess(image: ee.Image) {
-  const mask = image
-    .select('l2_quality_flag')
-    .and(image.select('l4_quality_flag'))
-    .and(image.select('degrade_flag').eq(0));
-  return image.select('agbd').updateMask(mask);
 }

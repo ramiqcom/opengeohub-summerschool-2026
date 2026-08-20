@@ -111,3 +111,11 @@ services:
       volumes_from:
         - base
       command: [".venv/bin/python", "-m", "job.gedi_tree_ratio"]
+  embedding_cog:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.embedding_cog"]

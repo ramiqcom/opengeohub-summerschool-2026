@@ -9,45 +9,50 @@ from ..utils import logger
 
 OUTPUT_PREFIX = "/usr/src/app/output"
 
-EXTRACT_TRAIN_PARQUET = f"{OUTPUT_PREFIX}/extract_train.parquet"
+# EXTRACT_TRAIN_PARQUET = f"{OUTPUT_PREFIX}/extract_train.parquet"
 EXTRACT_TRAIN_PARQUET_V2 = f"{OUTPUT_PREFIX}/extract_train_v2.parquet"
 
-EXTRACT_TEST_PARQUET = f"{OUTPUT_PREFIX}/extract_test.parquet"
+# EXTRACT_TEST_PARQUET = f"{OUTPUT_PREFIX}/extract_test.parquet"
 EXTRACT_TEST_PARQUET_V2 = f"{OUTPUT_PREFIX}/extract_test_v2.parquet"
 
 BANDS_CHM_META = ["CHM_META"]
 BANDS_CHM_ETH = ["CHM_ETH"]
 BANDS_CHM_ALS = ["CHM_ALS"]
 BANDS_CANOPY_DENSITY = ["CANOPY_DENSITY"]
+BANDS_LST = ["LST"]
 BANDS_DEM = ["elevation"]
 BANDS_TERRAIN = ["slope", "aspect", "tri", "tpi", "hillshade"]
 
 folder = TemporaryDirectory(delete=False)
 
 data_sources = [
+    # dict(
+    #     bands=BANDS_CHM_ETH,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/eth_chm/ETH_CHM.tif",
+    # ),
+    # dict(
+    #     bands=BANDS_CHM_META,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm/META_CHM.tif",
+    # ),
+    # dict(
+    #     bands=BANDS_CHM_ALS,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/als_canopy_height/als_canopy_height.tif",
+    # ),
+    # dict(
+    #     bands=BANDS_CANOPY_DENSITY,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/canopy_density/canopy_density_2020.tif",
+    # ),
+    # dict(
+    #     bands=BANDS_DEM,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/nasadem/opengeohub_summerschool_2026_NASADEM_30m.tif",
+    # ),
+    # dict(
+    #     bands=BANDS_TERRAIN,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/terrain/terrain.tif",
+    # ),
     dict(
-        bands=BANDS_CHM_ETH,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/eth_chm/ETH_CHM.tif",
-    ),
-    dict(
-        bands=BANDS_CHM_META,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm/META_CHM.tif",
-    ),
-    dict(
-        bands=BANDS_CHM_ALS,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/als_canopy_height/als_canopy_height.tif",
-    ),
-    dict(
-        bands=BANDS_CANOPY_DENSITY,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/canopy_density/canopy_density_2020.tif",
-    ),
-    dict(
-        bands=BANDS_DEM,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/nasadem/opengeohub_summerschool_2026_NASADEM_30m.tif",
-    ),
-    dict(
-        bands=BANDS_TERRAIN,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/terrain/terrain.tif",
+        bands=BANDS_LST,
+        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/lst/opengeohub_Landsat_LST_composite_2025-06-01_2025-06-30_100m.tif",
     ),
 ]
 
@@ -77,7 +82,7 @@ def extract(df, coords, bands, source):
 
 
 logger.info("Load train")
-train_df = gpd.read_parquet(EXTRACT_TRAIN_PARQUET)
+train_df = gpd.read_parquet(EXTRACT_TRAIN_PARQUET_V2)
 coords = [coord for coord in zip(train_df.geometry.x, train_df.geometry.y)]
 
 logger.info("Extract train")
@@ -96,7 +101,7 @@ logger.info("Save train")
 train_df.to_parquet(EXTRACT_TRAIN_PARQUET_V2)
 
 logger.info("Load test")
-test_df = gpd.read_parquet(EXTRACT_TEST_PARQUET)
+test_df = gpd.read_parquet(EXTRACT_TEST_PARQUET_V2)
 coords = [coord for coord in zip(test_df.geometry.x, test_df.geometry.y)]
 
 logger.info("Extract test")
