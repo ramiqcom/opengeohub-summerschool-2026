@@ -11,6 +11,7 @@ OUTPUT_VOLUME = "/usr/src/app/output"
 CLOUD_PREFIX = "gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026"
 S2_CLOUD_PREFIX = f"{CLOUD_PREFIX}/s2"
 S1_CLOUD_PREFIX = f"{CLOUD_PREFIX}/s1"
+LST_CLOUD_PREFIX = f"{CLOUD_PREFIX}/lst"
 RESOLUTION = 10
 
 TRAIN_PARQUET = f"{OUTPUT_LOCAL}/train_only_biomass.parquet"
@@ -58,6 +59,38 @@ def run_s2(name: str, roi, sql_where: str = "", dates: tuple[str, str] | None = 
     )
 
     check_call(f"rm {OUTPUT_LOCAL}/{name}*S2*.tif", shell=True)
+
+
+def run_lst(name: str, roi, sql_where: str = "", dates: tuple[str, str] | None = None):
+    start_date, end_date = dates
+
+    logger.info(f"Run LST {name}")
+
+    cmd = f"""docker container run \
+                --name lst_{name} \
+                --rm \
+                --cpus {CPU_PER_PROCESS} \
+                -v {OUTPUT_LOCAL}:{OUTPUT_VOLUME} \
+                -e LANDSAT_LST_SOURCE=planetary_computer \
+                -e LANDSAT_LST_START_DATE={start_date} \
+                -e LANDSAT_LST_END_DATE={end_date} \
+                -e LANDSAT_LST_ROI_INPUT={roi} \
+                -e LANDSAT_LST_ROI_SQL_WHERE="{sql_where}" \
+                -e LANDSAT_LST_RESOLUTION=30 \
+                -e LANDSAT_LST_OUTPUT_PREFIX={name} \
+                eu.gcr.io/ramadhan-s4g/rs-open-source-docker-base:latest \
+                .venv/bin/python -m modules.landsat_lst_composite \
+    """
+
+    check_call(cmd, shell=True)
+
+    logger.info("Upload LST data")
+    check_call(
+        f"gcloud storage cp {OUTPUT_LOCAL}/{name}*_Landsat_LST_composite_*.tif {LST_CLOUD_PREFIX}/",
+        shell=True,
+    )
+
+    check_call(f"rm {OUTPUT_LOCAL}/{name}*_Landsat_LST_composite_*.tif", shell=True)
 
 
 def run_s1(name: str, roi, sql_where: str = "", dates: tuple[str, str] | None = None):
@@ -143,6 +176,16 @@ with ThreadPoolExecutor(2) as executor:
                         date_range,
                     )
                 )
+
+            jobs.append(
+                executor.submit(
+                    run_lst,
+                    name,
+                    GRIDS,
+                    tile_filter,
+                    date_range,
+                )
+            )
 
     for job in jobs:
         try:
