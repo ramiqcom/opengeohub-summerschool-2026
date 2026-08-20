@@ -29,16 +29,16 @@ BANDS_EMBEDDINGS = [f"A{index}" for index in range(64)]
 
 folder = TemporaryDirectory(delete=False)
 
-check_call(
-    f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/embedding {folder.name}/.",
-    shell=True,
-)
-logger.info("Make VRT embedding")
-vrt_embedding = f"{folder.name}/embedding.vrt"
-check_call(
-    f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/embedding/*.tif {vrt_embedding}""",
-    shell=True,
-)
+# check_call(
+#     f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/embedding {folder.name}/.",
+#     shell=True,
+# )
+# logger.info("Make VRT embedding")
+# vrt_embedding = f"{folder.name}/embedding.vrt"
+# check_call(
+#     f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/embedding/*.tif {vrt_embedding}""",
+#     shell=True,
+# )
 
 data_sources = [
     # dict(
@@ -150,3 +150,16 @@ with ThreadPoolExecutor(8) as executor:
 
 logger.info("Save test")
 test_df.to_parquet(EXTRACT_TEST_PARQUET_V2)
+
+
+logger.info("Upload extract")
+
+check_call(
+    f"gcloud storage cp {EXTRACT_TRAIN_PARQUET_V2} gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/sample/",
+    shell=True,
+)
+
+check_call(
+    f"gcloud storage cp {EXTRACT_TEST_PARQUET_V2} gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/sample/",
+    shell=True,
+)
