@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from subprocess import check_call
+from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
 
 import geopandas as gpd
@@ -16,7 +16,7 @@ RESOLUTION = 10
 def main():
     with ThreadPoolExecutor(int(MAX_WORKERS / 2)) as executor:
         jobs = []
-        for index in range(len(tile_ids)):
+        for index in range(1):
             jobs.append(executor.submit(run_per_tile, index))
 
         for job in jobs:
@@ -41,13 +41,19 @@ def run_per_tile(index):
             shell=True,
         )
 
+        file_list = check_output(
+            f"ls {folder}/tessera/global_0.1_degree_representation/2020/**/*.tiff",
+            shell=True,
+            text=True,
+        ).split("\n")
+
         logger.info("COG Tessera")
         cog = f"{folder}/mosaic.tif"
         check_call(
             f"""gdal raster pipeline \
                 ! mosaic \
                   --resolution=average \
-                  {folder}/tessera/global_0.1_degree_tiff_all/*.tiff \
+                  {" ".join(file_list)} \
                 ! reproject \
                   -r lanczos \
                   -d EPSG:4326 \
