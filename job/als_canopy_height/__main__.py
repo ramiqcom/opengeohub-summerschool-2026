@@ -49,7 +49,7 @@ def load_als(index):
         if year == 2021:
             data_id = 14977506
         elif year == 2020:
-            data_id = 14977357
+            data_id = 1497735
         elif year == 2019:
             data_id = 14977001
         elif year == 2018:
