@@ -16,6 +16,7 @@ EXTRACT_TRAIN_PARQUET_V2 = f"{OUTPUT_PREFIX}/extract_train_v2.parquet"
 EXTRACT_TEST_PARQUET_V2 = f"{OUTPUT_PREFIX}/extract_test_v2.parquet"
 
 BANDS_CHM_META = ["CHM_META"]
+BANDS_CHM_META_5M = ["CHM_META_5M"]
 BANDS_CHM_ETH = ["CHM_ETH"]
 BANDS_CHM_ALS = ["CHM_ALS"]
 BANDS_CANOPY_DENSITY = ["CANOPY_DENSITY"]
@@ -40,16 +41,28 @@ folder = TemporaryDirectory(delete=False)
 #     shell=True,
 # )
 
+# check_call(
+#     f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/gedi_tree_ratio/ {folder.name}/.",
+#     shell=True,
+# )
+# logger.info("Make mosaic tree ratio")
+# cog_tree = f"{folder.name}/tree.vrt"
+# check_call(
+#     f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/gedi_tree_ratio/*.tif {cog_tree}""",
+#     shell=True,
+# )
+
 check_call(
-    f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/gedi_tree_ratio/ {folder.name}/.",
+    f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm_5m/ {folder.name}/.",
     shell=True,
 )
-logger.info("Make mosaic tree ratio")
-cog_tree = f"{folder.name}/tree.vrt"
+logger.info("Make mosaic META CHM 5M")
+meta_chm_5m = f"{folder.name}/chm_meta_5m.vrt"
 check_call(
-    f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/gedi_tree_ratio/*.tif {cog_tree}""",
+    f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/meta_chm_5m/*.tif {meta_chm_5m}""",
     shell=True,
 )
+
 # check_call(
 #     f"gcloud storage cp {cog_tree} gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
 #     shell=True,
@@ -86,19 +99,24 @@ data_sources = [
     #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/lst/opengeohub_Landsat_LST_composite_2025-06-01_2025-06-30_100m.tif",
     # ),
     # dict(bands=BANDS_EMBEDDINGS, source=vrt_embedding, download=False),
+    # dict(
+    #     bands=BANDS_AGB_GEDI,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/biomass_GEDI/Biomass_predicted_by_GEDI_Sentinel_based_model_2020_COG.tif",
+    # ),
+    # dict(
+    #     bands=BANDS_AGB_ALS,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/biomass_ALS/Biomass_predicted_by_ALS_Sentinel_based_model_2020_COG.tif",
+    # ),
+    # dict(
+    #     bands=BANDS_TREE_RATIO,
+    #     source=cog_tree,
+    #     download=False,
+    #     # source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
+    # ),
     dict(
-        bands=BANDS_AGB_GEDI,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/biomass_GEDI/Biomass_predicted_by_GEDI_Sentinel_based_model_2020_COG.tif",
-    ),
-    dict(
-        bands=BANDS_AGB_ALS,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/biomass_ALS/Biomass_predicted_by_ALS_Sentinel_based_model_2020_COG.tif",
-    ),
-    dict(
-        bands=BANDS_TREE_RATIO,
-        source=cog_tree,
+        bands=BANDS_CHM_META_5M,
+        source=meta_chm_5m,
         download=False,
-        # source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
     ),
 ]
 

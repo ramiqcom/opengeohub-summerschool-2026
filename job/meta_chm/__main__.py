@@ -5,21 +5,21 @@ from tempfile import TemporaryDirectory
 
 import geopandas as gpd
 
-from ..utils import logger
+from ..utils import MAX_WORKERS, logger
 
 BUCKET_PREFIX = "gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026"
 TILES = f"https://storage.googleapis.com/{BUCKET_PREFIX}/roi/tiles_v2.geojson"
 META_PREFIX = "dataforgood-fb-data/forests/v2/global/dinov3_global_chm_v2_ml3"
 TILES_CHM = f"/vsis3/{META_PREFIX}/tiles.geojson"
 CHM_PREFIX = f"/vsis3/{META_PREFIX}/chm"
-RESOLUTION = 10
+RESOLUTION = 5
 
 tiles_df = gpd.read_file(TILES)
 tile_ids = tiles_df["tile_id"].unique()
 
 
 def main():
-    with ThreadPoolExecutor(8) as executor:
+    with ThreadPoolExecutor(MAX_WORKERS) as executor:
         jobs = []
         for index in range(len(tile_ids)):
             jobs.append(executor.submit(run_per_tile, index))
@@ -83,7 +83,7 @@ def run_per_tile(index):
 
         logger.info("Upload CHM")
         check_call(
-            f"gcloud storage cp {chm} gs://{BUCKET_PREFIX}/meta_chm/{tile_id}.tif",
+            f"gcloud storage cp {chm} gs://{BUCKET_PREFIX}/meta_chm_5m/{tile_id}.tif",
             shell=True,
         )
 
