@@ -78,7 +78,7 @@ def run_tile(index):
         cog = f"{folder.name}/tree.tif"
         check_call(
             f"""gdal raster pipeline \
-                ! mosaic --resolution=average {" ".join(results)} \
+                ! mosaic --input-nodata=0 --output-nodata=0 --resolution=average {" ".join(results)} \
                 ! reproject \
                     --resolution={RESOLUTION / 111_000},{RESOLUTION / 111_0000} \
                     --bbox-crs=EPSG:4326 \
@@ -90,7 +90,7 @@ def run_tile(index):
 
         logger.info("Upload")
         check_call(
-            f"gcloud storage cp {cog} gs://gee-ramiqcom-s4g-bucket/gedi_tree_ratio/gedi_tree_ratio_{tile_id}.tif",
+            f"gcloud storage cp {cog} gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio_{tile_id}.tif",
             shell=True,
         )
 

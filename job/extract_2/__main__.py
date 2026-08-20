@@ -19,6 +19,9 @@ BANDS_CHM_META = ["CHM_META"]
 BANDS_CHM_ETH = ["CHM_ETH"]
 BANDS_CHM_ALS = ["CHM_ALS"]
 BANDS_CANOPY_DENSITY = ["CANOPY_DENSITY"]
+BANDS_TREE_RATIO = ["TREE_RATIO"]
+BANDS_AGB_GEDI = ["AGB_GEDI"]
+BANDS_AGB_ALS = ["AGB_ALS"]
 BANDS_LST = ["LST"]
 BANDS_DEM = ["elevation"]
 BANDS_TERRAIN = ["slope", "aspect", "tri", "tpi", "hillshade"]
@@ -66,7 +69,19 @@ data_sources = [
     #     bands=BANDS_LST,
     #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/lst/opengeohub_Landsat_LST_composite_2025-06-01_2025-06-30_100m.tif",
     # ),
-    dict(bands=BANDS_EMBEDDINGS, source=vrt_embedding, download=False),
+    # dict(bands=BANDS_EMBEDDINGS, source=vrt_embedding, download=False),
+    dict(
+        bands=BANDS_AGB_GEDI,
+        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/biomass_GEDI/Biomass_predicted_by_GEDI_Sentinel_based_model_2020_COG.tif",
+    ),
+    dict(
+        bands=BANDS_AGB_ALS,
+        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/biomass_ALS/Biomass_predicted_by_ALS_Sentinel_based_model_2020_COG.tif",
+    ),
+    dict(
+        bands=BANDS_TREE_RATIO,
+        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
+    ),
 ]
 
 
