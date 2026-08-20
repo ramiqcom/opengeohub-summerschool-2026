@@ -9,3 +9,4 @@ zarr
 arraylake
 dotenv
 rioxarray
+geotessera

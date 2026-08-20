@@ -119,3 +119,11 @@ services:
       volumes_from:
         - base
       command: [".venv/bin/python", "-m", "job.embedding_cog"]
+  tessera:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.tessera"]
