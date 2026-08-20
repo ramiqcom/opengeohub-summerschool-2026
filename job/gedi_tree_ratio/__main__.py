@@ -29,7 +29,7 @@ test_df = gpd.read_parquet(TEST_PARQUET)
 tile_ids = grids_df["tile_id"].unique()
 
 
-def load_als(index):
+def load_tree(index):
     grid = grids_df[index : index + 1]
     tile_id = grid.iloc[0]["tile_id"]
 
@@ -86,7 +86,7 @@ def load_als(index):
 with ThreadPoolExecutor(8) as executor:
     jobs = []
     for index in range(len(tile_ids)):
-        jobs.append(executor.submit(load_als, index))
+        jobs.append(executor.submit(load_tree, index))
 
     for job in jobs:
         try:
