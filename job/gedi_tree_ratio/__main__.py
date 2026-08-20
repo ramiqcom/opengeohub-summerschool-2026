@@ -58,7 +58,7 @@ def load_als(index):
             data_id = 15032307
 
         paths = [
-            f"/vsicurl/https://zenodo.org/records/{data_id}/files/Predicted_tree_coverage_ratio_from_GEDI_Sentinel_based_UNET_model_{year}_batch_{index}.tif?download=1"
+            f"/vsicurl/https://zenodo.org/records/{data_id}/files/Predicted_tree_coverage_ratio_from_GEDI_Sentinel_based_UNET_model_{year}_batch_{no}.tif?download=1"
             for no in range(14)
         ]
 
