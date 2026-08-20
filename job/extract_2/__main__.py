@@ -40,6 +40,22 @@ folder = TemporaryDirectory(delete=False)
 #     shell=True,
 # )
 
+check_call(
+    f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/gedi_tree_ratio/ {folder.name}/.",
+    shell=True,
+)
+logger.info("Make mosaic tree ratio")
+cog_tree = f"{folder.name}/tree.vrt"
+check_call(
+    f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/gedi_tree_ratio/*.tif {cog_tree}""",
+    shell=True,
+)
+# check_call(
+#     f"gcloud storage cp {cog_tree} gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
+#     shell=True,
+# )
+
+
 data_sources = [
     # dict(
     #     bands=BANDS_CHM_ETH,
@@ -80,7 +96,9 @@ data_sources = [
     ),
     dict(
         bands=BANDS_TREE_RATIO,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
+        source=cog_tree,
+        download=False,
+        # source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
     ),
 ]
 
