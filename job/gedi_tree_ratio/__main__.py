@@ -57,7 +57,7 @@ def download(path):
 
 logger.info("Download all data")
 
-with ThreadPoolExecutor(8) as executor:
+with ThreadPoolExecutor(4) as executor:
     jobs = [executor.submit(download, path) for path in paths]
     results = [job.result() for job in jobs]
 
@@ -95,7 +95,7 @@ def load_tree(index):
         )
 
 
-with ThreadPoolExecutor(8) as executor:
+with ThreadPoolExecutor(4) as executor:
     jobs = []
     for index in range(len(tile_ids)):
         jobs.append(executor.submit(load_tree, index))
