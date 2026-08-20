@@ -16,7 +16,7 @@ RESOLUTION = 10
 def main():
     with ThreadPoolExecutor(int(MAX_WORKERS / 2)) as executor:
         jobs = []
-        for index in range(1):
+        for index in range(len(tile_ids)):
             jobs.append(executor.submit(run_per_tile, index))
 
         for job in jobs:
@@ -63,10 +63,6 @@ def run_per_tile(index):
                 ! write \
                   -f COG \
                   --co="COMPRESS=ZSTD" \
-                  --co="STATISTICS=YES" \
-                  --co="OVERVIEWS=IGNORE_EXISTING" \
-                  --co="OVERVIEW_RESAMPLING=LANCZOS" \
-                  --co="RESAMPLING=LANCZOS" \
                   {cog} \
             """,
             shell=True,
