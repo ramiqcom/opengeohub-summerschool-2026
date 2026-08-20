@@ -61,22 +61,46 @@ with ThreadPoolExecutor(4) as executor:
     jobs = [executor.submit(download, path) for path in paths]
     results = [job.result() for job in jobs]
 
-with TemporaryDirectory() as folder:
-    folder = TemporaryDirectory(delete=False)
+tile_ids = grids_df["tile_id"].unique()
 
-    logger.info("Create COG")
-    cog = f"{folder.name}/tree.tif"
-    check_call(
-        f"""gdal raster pipeline \
-            ! mosaic --resolution=average {" ".join(results)} \
-            ! reproject -d EPSG:4326 \
-            ! clip --like={ROI} --allow-bbox-outside-source \
-            ! write -f COG --co="COMPRESS=ZSTD" {cog}""",
-        shell=True,
-    )
 
-    logger.info("Upload")
-    check_call(
-        f"gcloud storage cp {cog} gs://gee-ramiqcom-s4g-bucket/gedi_tree_ratio/gedi_tree_ratio.tif",
-        shell=True,
-    )
+def run_tile(index):
+    tile_id = tile_ids[index]
+
+    logger.info(f"Run {tile_id} {index + 1} / {len(tile_ids)}")
+
+    bbox = tuple(grids_df[index : index + 1].total_bounds)
+
+    with TemporaryDirectory() as folder:
+        folder = TemporaryDirectory(delete=False)
+
+        logger.info("Create COG")
+        cog = f"{folder.name}/tree.tif"
+        check_call(
+            f"""gdal raster pipeline \
+                ! mosaic --resolution=average {" ".join(results)} \
+                ! reproject \
+                    --resolution={RESOLUTION / 111_000},{RESOLUTION / 111_0000} \
+                    --bbox-crs=EPSG:4326 \
+                    -d EPSG:4326 \
+                    --bbox={bbox[0]},{bbox[1]},{bbox[2]},{bbox[3]} \
+                ! write -f COG --co="COMPRESS=ZSTD" {cog}""",
+            shell=True,
+        )
+
+        logger.info("Upload")
+        check_call(
+            f"gcloud storage cp {cog} gs://gee-ramiqcom-s4g-bucket/gedi_tree_ratio/gedi_tree_ratio_{tile_id}.tif",
+            shell=True,
+        )
+
+
+with ThreadPoolExecutor(4) as executor:
+    jobs = []
+    for index in range(len(tile_ids)):
+        jobs.append(executor.submit(run_tile, index))
+    for job in jobs:
+        try:
+            job.result()
+        except Exception as e:
+            logger.info(f"Error: {e}")
