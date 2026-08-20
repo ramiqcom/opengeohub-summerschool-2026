@@ -22,10 +22,20 @@ BANDS_CANOPY_DENSITY = ["CANOPY_DENSITY"]
 BANDS_LST = ["LST"]
 BANDS_DEM = ["elevation"]
 BANDS_TERRAIN = ["slope", "aspect", "tri", "tpi", "hillshade"]
+BANDS_EMBEDDINGS = [f"A{index}" for index in range(64)]
 
 folder = TemporaryDirectory(delete=False)
 
-vrt_embedding
+check_call(
+    f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/embedding {folder.name}/.",
+    shell=True,
+)
+logger.info("Make VRT embedding")
+vrt_embedding = f"{folder.name}/embedding.vrt"
+check_call(
+    f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/embedding/*.tif {vrt_embedding}""",
+    shell=True,
+)
 
 data_sources = [
     # dict(
@@ -52,19 +62,24 @@ data_sources = [
     #     bands=BANDS_TERRAIN,
     #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/terrain/terrain.tif",
     # ),
-    dict(
-        bands=BANDS_LST,
-        source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/lst/opengeohub_Landsat_LST_composite_2025-06-01_2025-06-30_100m.tif",
-    ),
+    # dict(
+    #     bands=BANDS_LST,
+    #     source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/lst/opengeohub_Landsat_LST_composite_2025-06-01_2025-06-30_100m.tif",
+    # ),
+    dict(bands=BANDS_EMBEDDINGS, source=vrt_embedding, download=False),
 ]
 
 
 def downloads(index):
     folder = TemporaryDirectory(delete=False)
     data_dict = data_sources[index]
-    local = f"{folder.name}/image.tif"
-    check_call(f"gcloud storage cp {data_dict['source']} {local}", shell=True)
-    data_sources[index]["local_source"] = local
+
+    if "download" not in data_dict:
+        local = f"{folder.name}/image.tif"
+        check_call(f"gcloud storage cp {data_dict['source']} {local}", shell=True)
+        data_sources[index]["local_source"] = local
+    elif not data_dict["download"]:
+        data_sources[index]["local_source"] = data_dict["source"]
 
 
 with ThreadPoolExecutor(8) as executor:
