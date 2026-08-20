@@ -51,7 +51,7 @@ paths = [
 def download(path):
     folder = TemporaryDirectory(delete=False)
     o = f"{folder.name}/output.tif"
-    check_call(f"curl {path} -X GET -o {o}", shell=True)
+    check_call(f"curl --output={o} {path}", shell=True)
     return o
 
 
@@ -61,47 +61,22 @@ with ThreadPoolExecutor(4) as executor:
     jobs = [executor.submit(download, path) for path in paths]
     results = [job.result() for job in jobs]
 
-logger.info("Create VRT")
+with TemporaryDirectory() as folder:
+    folder = TemporaryDirectory(delete=False)
 
-folder = TemporaryDirectory(delete=False)
-vrt = f"{folder.name}/tree.vrt"
-check_call(f"""gdal raster mosaic -f VRT {" ".join(results)} {vrt}""", shell=True)
+    logger.info("Create COG")
+    cog = f"{folder.name}/tree.tif"
+    check_call(
+        f"""gdal raster pipeline \
+            ! mosaic --resolution=average {" ".join(results)} \
+            ! reproject -d EPSG:4326 \
+            ! clip --like={ROI} --allow-bbox-outside-source \
+            ! write -f COG --co="COMPRESS=ZSTD" {cog}""",
+        shell=True,
+    )
 
-
-def load_tree(index):
-    grid = grids_df[index : index + 1]
-    tile_id = grid.iloc[0]["tile_id"]
-
-    logger.info(f"Run {tile_id} {index + 1} / {len(tile_ids)}")
-
-    xmin, ymin, xmax, ymax = tuple(grid.total_bounds)
-
-    name = f"tile_{tile_id}"
-
-    with TemporaryDirectory() as folder:
-        canopy = f"{folder}/tree.tif"
-        check_call(
-            f"""gdal raster pipeline \
-                ! read {vrt} \
-                ! reproject -d EPSG:4326 --bbox-crs=EPSG:4326 --bbox={xmin},{ymin},{xmax},{ymax} \
-                ! write -f COG --co="COMPRESS=ZSTD" {canopy} \
-          """,
-            shell=True,
-        )
-
-        check_call(
-            f"gcloud storage cp {canopy} gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/{name}.tif",
-            shell=True,
-        )
-
-
-with ThreadPoolExecutor(4) as executor:
-    jobs = []
-    for index in range(len(tile_ids)):
-        jobs.append(executor.submit(load_tree, index))
-
-    for job in jobs:
-        try:
-            job.result()
-        except Exception as e:
-            logger.info(f"Error: {e}")
+    logger.info("Upload")
+    check_call(
+        f"gcloud storage cp {cog} gs://gee-ramiqcom-s4g-bucket/gedi_tree_ratio/gedi_tree_ratio.tif",
+        shell=True,
+    )
