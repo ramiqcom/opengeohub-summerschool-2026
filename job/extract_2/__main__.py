@@ -25,6 +25,8 @@ BANDS_TERRAIN = ["slope", "aspect", "tri", "tpi", "hillshade"]
 
 folder = TemporaryDirectory(delete=False)
 
+vrt_embedding
+
 data_sources = [
     # dict(
     #     bands=BANDS_CHM_ETH,
