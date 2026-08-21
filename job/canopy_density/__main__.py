@@ -72,7 +72,6 @@ def load_density(index):
                 f"{feat['assets']['data']['href'].replace('s3://', '/vsis3/')}"
                 for feat in col_filter_year
             ]
-            logger.info(paths)
 
             with TemporaryDirectory() as folder:
                 canopy = f"{folder}/canopy.tif"
@@ -100,7 +99,7 @@ def load_density(index):
             logger.info(f"No data in {name}")
 
 
-with ThreadPoolExecutor(32) as executor:
+with ThreadPoolExecutor(2) as executor:
     jobs = []
     for index in range(len(tile_ids)):
         jobs.append(executor.submit(load_density, index))
