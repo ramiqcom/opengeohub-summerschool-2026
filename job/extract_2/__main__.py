@@ -19,6 +19,7 @@ BANDS_CHM_META = ["CHM_META"]
 BANDS_CHM_META_5M = ["CHM_META_5M"]
 BANDS_CHM_ETH = ["CHM_ETH"]
 BANDS_CHM_ALS = ["CHM_ALS"]
+BANDS_LEAF = ["LEAF_TYPE"]
 BANDS_CANOPY_DENSITY = ["CANOPY_DENSITY"]
 BANDS_TREE_RATIO = ["TREE_RATIO"]
 BANDS_AGB_GEDI = ["AGB_GEDI"]
@@ -52,14 +53,25 @@ folder = TemporaryDirectory(delete=False)
 #     shell=True,
 # )
 
+# check_call(
+#     f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm_5m/ {folder.name}/.",
+#     shell=True,
+# )
+# logger.info("Make mosaic META CHM 5M")
+# meta_chm_5m = f"{folder.name}/chm_meta_5m.vrt"
+# check_call(
+#     f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/meta_chm_5m/*.tif {meta_chm_5m}""",
+#     shell=True,
+# )
+
 check_call(
-    f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/meta_chm_5m/ {folder.name}/.",
+    f"gcloud storage cp -r gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/leaf_type/ {folder.name}/.",
     shell=True,
 )
-logger.info("Make mosaic META CHM 5M")
-meta_chm_5m = f"{folder.name}/chm_meta_5m.vrt"
+logger.info("Make mosaic Leaf Type")
+leaf_vrt = f"{folder.name}/leaf_type.vrt"
 check_call(
-    f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/meta_chm_5m/*.tif {meta_chm_5m}""",
+    f"""gdal raster mosaic -f VRT --resolution=average {folder.name}/leaf_type/*.tif {leaf_vrt}""",
     shell=True,
 )
 
@@ -113,9 +125,14 @@ data_sources = [
     #     download=False,
     #     # source="gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/gedi_tree_ratio/gedi_tree_ratio.tif",
     # ),
+    # dict(
+    #     bands=BANDS_CHM_META_5M,
+    #     source=meta_chm_5m,
+    #     download=False,
+    # ),
     dict(
-        bands=BANDS_CHM_META_5M,
-        source=meta_chm_5m,
+        bands=BANDS_LEAF,
+        source=leaf_vrt,
         download=False,
     ),
 ]
