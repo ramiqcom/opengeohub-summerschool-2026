@@ -15,3 +15,4 @@ fastparquet
 xgboost
 kaggle
 planetary_computer
+lightgbm
