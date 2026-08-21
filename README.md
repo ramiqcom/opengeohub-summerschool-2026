@@ -12,4 +12,4 @@ Folder [notebook](notebook) contains Jupyter Notebooks for conversing CSV to par
 
 Folder [job](job) contains script for running heavy and background task, mostly that need heavy I/O such as compositing satellite imagery, acquiring and tiling canopy height data from external source, and extracting features.
 
-To run this job, you need to check [docker-compose.yml](docker-compse.yml) for available job you can do.
+To run this job, you need to check [docker-compose.yml](docker-compose.yml) for available job you can do.
