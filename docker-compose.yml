@@ -111,6 +111,14 @@ services:
       volumes_from:
         - base
       command: [".venv/bin/python", "-m", "job.gedi_tree_ratio"]
+  leaf_type:
+      build:
+        dockerfile: ./Dockerfile.job
+        context: .
+      env_file: .env
+      volumes_from:
+        - base
+      command: [".venv/bin/python", "-m", "job.leaf_type"]
   embedding_cog:
       build:
         dockerfile: ./Dockerfile.job

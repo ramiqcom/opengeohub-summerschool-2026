@@ -15,13 +15,13 @@ os.environ["AWS_VIRTUAL_HOSTING"] = "FALSE"
 os.environ["AWS_NO_SIGN_REQUEST"] = "NO"
 
 STAC = "https://stac.dataspace.copernicus.eu/v1"
-LAYER_NAME = "canopy_density"
-COL_NAME = "clms_vlcc_tree-cover-density_europe_10m_yearly_v1"
+LAYER_NAME = "leaf_type"
+COL_NAME = "clms_vlcc_dominant-leaf-type_europe_10m_yearly_v1"
 ROI = "https://storage.googleapis.com/gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026/roi/tiles_v2.geojson"
 
 CLOUD_PREFIX = "gs://gee-ramiqcom-s4g-bucket/opengeohub_summerschool_2026"
-OUTPUT_PREFIX = f"{CLOUD_PREFIX}/{LAYER_NAME}"
 RESOLUTION = 10
+OUTPUT_PREFIX = f"{CLOUD_PREFIX}/{LAYER_NAME}"
 
 TRAIN_PARQUET = f"{OUTPUT_VOLUME}/train_only_biomass.parquet"
 TEST_PARQUET = f"{OUTPUT_VOLUME}/test_only_biomass.parquet"
@@ -39,6 +39,7 @@ logger.info("Load test")
 test_df = gpd.read_parquet(TEST_PARQUET)
 
 tile_ids = grids_df["tile_id"].unique()
+
 
 try:
     all_dones = check_output(
@@ -90,7 +91,7 @@ def load_density(index):
                 ]
 
                 with TemporaryDirectory() as folder:
-                    canopy = f"{folder}/canopy.tif"
+                    image = f"{folder}/mosaic.tif"
                     check_call(
                         f"""gdal raster pipeline \
                                 ! mosaic {" ".join(paths)} --resolution=average \
@@ -102,13 +103,13 @@ def load_density(index):
                                 ! write \
                                     -f COG \
                                     --co="COMPRESS=ZSTD" \
-                                    {canopy}
+                                    {image}
                         """,
                         shell=True,
                     )
 
                     check_call(
-                        f"gcloud storage cp {canopy} {OUTPUT_PREFIX}/{name}.tif",
+                        f"gcloud storage cp {image} {OUTPUT_PREFIX}/{name}.tif",
                         shell=True,
                     )
             else:
