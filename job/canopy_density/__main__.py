@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from subprocess import check_call
 from tempfile import TemporaryDirectory
-import os
+
 import geopandas as gpd
 import pandas as pd
 from shapely import from_wkt
@@ -72,13 +72,17 @@ def load_density(index):
             with TemporaryDirectory() as folder:
                 canopy = f"{folder}/canopy.tif"
                 check_call(
-                    f"""gdal raster mosaic \
-                      --bbox={xmin},{ymin},{xmax},{ymax} \
-                      --resolution={RESOLUTION / 111_000},{RESOLUTION / 111_000} \
-                      -f COG \
-                      --co="COMPRESS=ZSTD" \
-                      {" ".join(paths)} \
-                      {canopy}
+                    f"""gdal raster pipeline \
+                        ! mosaic {" ".join(paths)} --resolution=average \
+                        ! reproject \
+                            -d EPSG:4326 \
+                            --bbox-crs=EPSG:4326 \
+                            --bbox={xmin},{ymin},{xmax},{ymax} \
+                            --resolution={RESOLUTION / 111_000},{RESOLUTION / 111_000} \
+                        ! write \
+                            -f COG \
+                            --co="COMPRESS=ZSTD" \
+                            {canopy}
                   """,
                     shell=True,
                 )
